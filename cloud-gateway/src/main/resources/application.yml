@@ -1,0 +1,88 @@
+server:
+  port: 8888
+
+spring:
+  application:
+    name: CLOUD-GATEWAY
+
+  config:
+    import: configserver:${CONFIG_SERVER_HOST:http://localhost:9000}
+  cloud:
+    gateway:
+      routes:
+        - id: ORDER-SERVICE
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/order/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: ORDER-SERVICE
+                fallbackUri: forward:/orderServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+        - id: PAYMENT-SERVICE
+          uri: lb://PAYMENT-SERVICE
+          predicates:
+            - Path=/payment/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: PAYMENT-SERVICE
+                fallbackUri: forward:/paymentServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+        - id: PRODUCT-SERVICE
+          uri: lb://PRODUCT-SERVICE
+          predicates:
+            - Path=/product/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: PRODUCT-SERVICE
+                fallbackUri: forward:/productServiceFallBack
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 1
+                redis-rate-limiter.burstCapacity: 1
+  data:
+    redis:
+# without Kubernetes below line will work
+      url: ${REDIS_HOST:redis://localhost:6379/0}
+
+# for Kubernetes, put the redis service configured on redis-deployment.yml
+#      url: ${REDIS_HOST:redis://redis-svc:6379/0}
+
+
+management:
+  info:
+    env:
+      enabled: true
+    git:
+      enabled: true
+      mode: full
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: '*'
+  tracing:
+    enabled: true
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_API_HOST:http://localhost:9411/api/v2/spans}
+
+
+okta:
+  oauth2:
+    issuer: https://dev-33539932.okta.com/oauth2/default
+    audience: api://default
+    client-id: 0oaf6wjs5lT34pkdr5d7
+    client-secret: m0MJVzxg_cdw5dT9Jhp7dweeqd46Gu7P6jO2qkuVx4To-YWCSOrDTzOkb5dnGWfl
+    scopes: openid, email, profile, offline_access
+
+
