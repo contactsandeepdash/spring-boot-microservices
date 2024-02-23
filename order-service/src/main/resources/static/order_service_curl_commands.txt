@@ -1,0 +1,7 @@
+# insert a single product
+curl -X POST -H "Content-Type: application/json" -d '{"productId":"1", "totalAmount":10000, "quantity":1, "paymentMode": "CASH"}' http://localhost:9092/order/placeOrder
+
+productId;
+    private float totalAmount;
+    private int quantity;
+    private quantity paymentMode;
