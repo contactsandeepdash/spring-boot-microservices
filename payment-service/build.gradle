@@ -1,0 +1,90 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.2.2'
+	id 'io.spring.dependency-management' version '1.1.4'
+	id 'com.google.cloud.tools.jib' version '3.4.0'
+}
+
+group = 'com.dash'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '17'
+}
+
+springBoot {
+	buildInfo()
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2023.0.0")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	/*	config client dependency added once the config server is setup	*/
+	implementation 'org.springframework.cloud:spring-cloud-starter-config'
+
+	/*	Open feign to onteract with other microservice	*/
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	/*	Observability - tracing	*/
+	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+
+	/*	swagger	*/
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.3.0'
+
+	/*	added for Okta Security		*/
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'com.okta.spring:okta-spring-boot-starter:3.0.6'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+tasks {
+	build {
+		dependsOn(tasks.jib)
+	}
+}
+
+jib {
+	from {
+		image('openjdk:17')
+	}
+	to {
+		image = 'registry.hub.docker.com/dash12020/payment-service'
+		tags = [project.version, 'latest']
+	}
+	container() {
+		ports = ['9093']
+	}
+}
