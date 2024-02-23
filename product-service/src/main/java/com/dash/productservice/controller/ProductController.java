@@ -2,6 +2,7 @@ package com.dash.productservice.controller;
 
 import com.dash.productservice.beans.ProductRequest;
 import com.dash.productservice.beans.ProductResponse;
+import com.dash.productservice.beans.ProductResponseList;
 import com.dash.productservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,13 @@ public class ProductController {
     public ResponseEntity<ProductResponse> getProductById(@PathVariable("id") long productId) {
         ProductResponse productResponse = productService.getProductById(productId);
         return new ResponseEntity<>(productResponse, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('Admin') || hasAuthority('Customer') || hasAuthority('SCOPE_internal')")
+    @GetMapping("/allProducts")
+    public ResponseEntity<ProductResponseList> getAllProducts() {
+        ProductResponseList productResponses = productService.getAllProducts();
+        return new ResponseEntity<>(productResponses, HttpStatus.OK);
     }
 
     @PutMapping("/updateProduct/{id}")
