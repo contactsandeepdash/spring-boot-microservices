@@ -1,0 +1,16 @@
+# Eureka server runs on default port of 8761
+server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: ${EUREKA_HOST:localhost}.eureka
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+# use https://www.asciiart.eu/text-to-ascii-art to generate custom banner
+spring:
+  banner:
+    location: banner.txt
+

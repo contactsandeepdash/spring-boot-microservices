@@ -1,7 +1,8 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.2.3'
+	id 'org.springframework.boot' version '3.2.2'
 	id 'io.spring.dependency-management' version '1.1.4'
+	id 'com.google.cloud.tools.jib' version '3.4.0'
 }
 
 group = 'com.dash'
@@ -32,4 +33,23 @@ dependencyManagement {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+tasks {
+	build {
+		dependsOn(tasks.jib)
+	}
+}
+
+jib {
+	from {
+		image('openjdk:17')
+	}
+	to {
+		image = 'registry.hub.docker.com/dash12020/service-registry'
+		tags = [project.version, 'latest']
+	}
+	container() {
+		ports = ['8761']
+	}
 }
