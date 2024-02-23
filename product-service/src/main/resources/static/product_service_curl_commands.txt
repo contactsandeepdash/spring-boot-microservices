@@ -1,0 +1,12 @@
+# insert a single product
+curl -X POST -H "Content-Type: application/json" -d '{"productName":"iPhone-15", "price":75000, "quantity":2}' http://localhost:9091/product/addProduct
+
+# fetch a single item
+curl -X GET http://localhost:9091/product/1
+
+# update a single item
+curl -X PUT -H "Content-Type: application/json" -d '{"productName":"iPhone", "price":15000, "quantity":10}' http://localhost:9091/product/updateProduct/1
+
+# reduceQuantity of a single item
+curl -X PUT -H "Content-Type: application/json" -d '{"quantity":1}' http://localhost:9091/product/reduceQuantity/103
+

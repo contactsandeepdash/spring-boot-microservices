@@ -1,0 +1,77 @@
+server:
+  port: 9091
+
+spring:
+  application:
+    name: PRODUCT-SERVICE
+
+  # added config - once the config server is set up
+  config:
+    import: configserver:${CONFIG_SERVER_HOST:http://localhost:9000}
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:3306/productdb
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-33539932.okta.com/oauth2/default
+      client:
+        registration:
+          internal-client:
+            provider: okta
+            authorization-grant-type: client_credentials
+            scope:
+              - internal
+            client-id: 0oaf6wjs5lT34pkdr5d7
+            client-secret: m0MJVzxg_cdw5dT9Jhp7dweeqd46Gu7P6jO2qkuVx4To-YWCSOrDTzOkb5dnGWfl
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: '*'
+
+  health:
+    db:
+      enabled: true
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: ${ZIPKIN_API_HOST:http://localhost:9411/api/v2/spans}
+
+springdoc:
+  swagger-ui:
+    path: /index.html
+
+
+#logging:
+#  pattern:
+#    level: =%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]
+
+
+# below one added initially, later after config-server, moved to github central config
+#eureka:
+#  instance:
+#    prefer-ip-address: true
+#  client:
+#    fetch-registry: true
+#    register-with-eureka: true
+#    service-url:
+#      defaultZone: ${EUREKA_SERVER_HOST:http://localhost:8761/eureka}
+
